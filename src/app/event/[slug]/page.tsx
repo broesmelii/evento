@@ -1,5 +1,6 @@
 import H1 from "@/components/h1";
-import { EventoEvent } from "@/lib/types";
+import { EventoEvent } from "@prisma/client";
+import { getEvent } from "@/lib/utils";
 import { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -11,23 +12,11 @@ type EventPageProps = {
   };
 };
 
-async function fetchEventData(slug: string): Promise<EventoEvent> {
-  const response = await fetch(
-    `https://bytegrad.com/course-assets/projects/evento/api/events/${slug}`
-  );
-
-  if (!response.ok) {
-    notFound(); // Handle not found error as needed
-  }
-
-  return response.json();
-}
-
 export async function generateMetadata({
   params,
 }: EventPageProps): Promise<Metadata> {
   const slug = params.slug;
-  const event = await fetchEventData(slug);
+  const event = await getEvent(slug);
 
   return {
     title: event.name,
@@ -52,7 +41,7 @@ function SectionContent({ children }: { children: React.ReactNode }) {
 
 export default async function EventPage({ params }: EventPageProps) {
   const slug = params.slug;
-  const event: EventoEvent = await fetchEventData(slug);
+  const event: EventoEvent = await getEvent(slug);
   console.log(event);
 
   const formattedDate = new Intl.DateTimeFormat("en-US", {
