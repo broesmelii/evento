@@ -1,6 +1,5 @@
 import clsx, { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { EventoEvent, Prisma, PrismaClient } from "@prisma/client";
 import { notFound } from "next/navigation";
 import prisma from "./db";
 
@@ -24,10 +23,14 @@ export async function getEvent(slug: string) {
       slug: slug,
     },
   });
+  if (!event) {
+    notFound();
+  }
   return event;
 }
 
-export async function getEvents(city: string) {
+export async function getEvents(city: string, page = 1) {
+  const resultsPerPage = 6;
   const events = await prisma.eventoEvent.findMany({
     where: {
       city: city === "all" ? undefined : capitalize(city),
@@ -35,6 +38,24 @@ export async function getEvents(city: string) {
     orderBy: {
       date: "asc",
     },
+    take: resultsPerPage,
+    skip: (page - 1) * resultsPerPage,
   });
-  return events;
+
+  if (!events) {
+    notFound();
+  }
+
+  // pass on total counts of events for city
+  let totalCount: number;
+  if (city === "all") {
+    totalCount = await prisma.eventoEvent.count();
+  } else {
+    totalCount = await prisma.eventoEvent.count({
+      where: {
+        city: capitalize(city),
+      },
+    });
+  }
+  return { events, totalCount };
 }

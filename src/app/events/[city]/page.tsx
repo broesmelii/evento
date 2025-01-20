@@ -5,22 +5,31 @@ import Loading from "./loading";
 import { Metadata } from "next";
 import { capitalize } from "@/lib/utils";
 
-type EventsPageProps = {
+type Props = {
   params: {
     city: string;
   };
 };
 
-export function generateMetadata({ params }: EventsPageProps): Metadata {
+type EventsPageProps = Props & {
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+export function generateMetadata({ params }: Props): Metadata {
   const city = params.city;
+
   const title = city === "all" ? "All events" : `Events in ${capitalize(city)}`;
   return {
     title: title,
   };
 }
 
-export default async function EventsPage({ params }: EventsPageProps) {
+export default async function EventsPage({
+  params,
+  searchParams,
+}: EventsPageProps) {
   const city = params.city;
+  const page = searchParams.page && +searchParams.page ? +searchParams.page : 1;
 
   // console.log(events);
   return (
@@ -28,8 +37,8 @@ export default async function EventsPage({ params }: EventsPageProps) {
       <H1 className="mb-10">
         {city === "all" ? "All Events" : `Events in ${capitalize(city)}`}
       </H1>
-      <Suspense fallback={<Loading />}>
-        <EventsList city={city} />
+      <Suspense key={city + page} fallback={<Loading />}>
+        <EventsList city={city} page={+page} />
       </Suspense>
     </main>
   );
