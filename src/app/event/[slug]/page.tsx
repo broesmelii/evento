@@ -1,15 +1,38 @@
 import H1 from "@/components/h1";
-import Skeleton from "@/components/skeleton";
 import { EventoEvent } from "@/lib/types";
+import { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import React, { Suspense } from "react";
+import React from "react";
 
 type EventPageProps = {
   params: {
     slug: string;
   };
 };
+
+async function fetchEventData(slug: string): Promise<EventoEvent> {
+  const response = await fetch(
+    `https://bytegrad.com/course-assets/projects/evento/api/events/${slug}`
+  );
+
+  if (!response.ok) {
+    notFound(); // Handle not found error as needed
+  }
+
+  return response.json();
+}
+
+export async function generateMetadata({
+  params,
+}: EventPageProps): Promise<Metadata> {
+  const slug = params.slug;
+  const event = await fetchEventData(slug);
+
+  return {
+    title: event.name,
+  };
+}
 
 function Section({ children }: { children: React.ReactNode }) {
   return <section className="mb-8">{children}</section>;
@@ -29,13 +52,7 @@ function SectionContent({ children }: { children: React.ReactNode }) {
 
 export default async function EventPage({ params }: EventPageProps) {
   const slug = params.slug;
-  const response = await fetch(
-    `https://bytegrad.com/course-assets/projects/evento/api/events/${slug}`
-  );
-  if (!response.ok) {
-    notFound();
-  }
-  const event: EventoEvent = await response.json();
+  const event: EventoEvent = await fetchEventData(slug);
   console.log(event);
 
   const formattedDate = new Intl.DateTimeFormat("en-US", {

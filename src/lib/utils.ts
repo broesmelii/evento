@@ -10,3 +10,7 @@ export async function sleep(ms: number) {
     setTimeout(resolve, ms);
   });
 }
+
+export function capitalize(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
