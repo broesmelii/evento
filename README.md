@@ -1,5 +1,5 @@
 # Evento
-Evento: [live version hosted by Vercel](https://evento-theta-ten.vercel.app)
+Evento: [live version here](https://evento-theta-ten.vercel.app)
 
 
 A project using next.js, react, and typescript to "find events around you". It's one of the portfolio projects of the *React & Next Course* from [ByteGrad](www.bytegrad.com), which I highly recommend!
