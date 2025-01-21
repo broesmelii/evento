@@ -4,6 +4,7 @@ import EventsList from "@/components/events-list";
 import Loading from "./loading";
 import { Metadata } from "next";
 import { capitalize } from "@/lib/utils";
+import { z } from "zod";
 
 type Props = {
   params: {
@@ -24,12 +25,27 @@ export function generateMetadata({ params }: Props): Metadata {
   };
 }
 
+export async function generateStaticParams() {
+  // already have the most popular cities ready
+  return [
+    {
+      city: "Austin",
+    },
+    {
+      city: "Seattle",
+    },
+  ];
+}
+
+const pageNumberSchema = z.coerce.number().int().positive().optional();
+
 export default async function EventsPage({
   params,
   searchParams,
 }: EventsPageProps) {
   const city = params.city;
-  const page = searchParams.page && +searchParams.page ? +searchParams.page : 1;
+  let parsedPage = pageNumberSchema.safeParse(searchParams.page);
+  const page = parsedPage.success ? parsedPage.data : 1;
 
   // console.log(events);
   return (
@@ -38,7 +54,7 @@ export default async function EventsPage({
         {city === "all" ? "All Events" : `Events in ${capitalize(city)}`}
       </H1>
       <Suspense key={city + page} fallback={<Loading />}>
-        <EventsList city={city} page={+page} />
+        <EventsList city={city} page={page} />
       </Suspense>
     </main>
   );

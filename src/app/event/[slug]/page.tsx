@@ -42,7 +42,7 @@ function SectionContent({ children }: { children: React.ReactNode }) {
 export default async function EventPage({ params }: EventPageProps) {
   const slug = params.slug;
   const event: EventoEvent = await getEvent(slug);
-  console.log(event);
+  // console.log(event);
 
   const formattedDate = new Intl.DateTimeFormat("en-US", {
     weekday: "long", // Full weekday name (e.g., "Saturday")
